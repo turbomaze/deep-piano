@@ -1,3 +1,4 @@
+import sys
 from timeline import Hit, Timeline
 from musical.theory import Note, Chord
 from musical.audio import save
