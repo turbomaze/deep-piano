@@ -7,4 +7,6 @@ song = dp.get_timeline_from_hlr([
     (2, Chord.major(Note('c3'))),
     (3, Chord.major(Note('g3')))
 ])
-dp.save_timeline_to_wav(song, '../data/song.wav')
+file_name = '../data/song.wav'
+dp.save_timeline_to_wav(song, file_name)
+dp.get_wav_spectrogram(file_name, 2048)
