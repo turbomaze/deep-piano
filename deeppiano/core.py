@@ -1,3 +1,9 @@
+"""
+Deep Piano
+@author Anthony Liu <igliu@mit.edu>
+@version 0.1.0
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.mlab import specgram
