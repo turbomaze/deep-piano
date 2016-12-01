@@ -9,4 +9,4 @@ song = dp.get_timeline_from_hlr([
 ])
 file_name = '../data/song.wav'
 dp.save_timeline_to_wav(song, file_name)
-dp.get_wav_spectrogram(file_name, 2048)
+dp.get_vectorized_wav(file_name, 2048)
