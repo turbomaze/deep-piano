@@ -4,7 +4,7 @@ import random as rand
 from context import deeppiano as dp
 from multiprocessing import Process
 
-if len(sys.argv) < 3:
+if len(sys.argv) < 2:
     print 'You must supply a "number of songs" argument.'
     sys.exit(0)
 

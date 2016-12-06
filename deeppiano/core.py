@@ -77,6 +77,11 @@ def get_wav_spectrogram(file_name, frame_size):
 # given a spectrogram, plots the frequency magnitudes
 def plot_spectrogram(spectrogram):
     mangogram = [[abs(x) for x in r] for r in spectrogram]
+    plot_mangogram(mangogram)
+
+
+# plot a given a magnitude spectrogram
+def plot_mangogram(mangogram):
     plt.pcolormesh(mangogram)
     plt.show()
 
@@ -84,7 +89,9 @@ def plot_spectrogram(spectrogram):
 # given a .wav file name, returns vectors for the autoencoder
 def get_vectorized_wav(file_name, frame_size):
     spectrogram = get_wav_spectrogram(file_name, frame_size)
-    mangogram = [[abs(x) for x in r] for r in spectrogram]
+    mangogram = [
+        [np.log(abs(x)) for x in r] for r in spectrogram
+    ]
 
     # autoencoder vectors are lists of frequency magnitudes
     return np.transpose(mangogram)
