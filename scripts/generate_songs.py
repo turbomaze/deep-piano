@@ -4,13 +4,18 @@ import random as rand
 from context import deeppiano as dp
 from multiprocessing import Process
 
-if len(sys.argv) < 2:
+if len(sys.argv) < 3:
     print 'You must supply a "number of songs" argument.'
+    sys.exit(0)
+
+if len(sys.argv) < 3:
+    print 'You must supply a "time per note" argument.'
     sys.exit(0)
 
 root = '../data/songs'
 num_threads = 2
 total_songs = int(sys.argv[1])
+time_per_note = float(sys.argv[2])
 letter = unichr(65 + rand.randrange(26))
 song_count = 0
 
@@ -18,12 +23,12 @@ song_count = 0
 def generate_and_save_song():
     global song_count
     global total_songs
+    global time_per_note
     global letter
     global root
 
     notes_per_chord = 4
     num_repeats = 1
-    time_per_note = 0.5
 
     while song_count < total_songs:
         song_count += 1
