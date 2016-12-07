@@ -1,4 +1,5 @@
 matplotlib
 numpy
+scipy
 keras
 h5py
