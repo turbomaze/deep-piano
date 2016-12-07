@@ -1,3 +1,5 @@
 */*.pyc
 
-data/song.wav
+data/*
+data/songs/*
+data/test-songs/*
