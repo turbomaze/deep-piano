@@ -10,5 +10,7 @@ This project uses generative models and deep auto-encoders to infer the underlyi
 
 * This project uses `numpy`.
 
+* This project requires `h5py` to save Keras models.
+
 ## License
 License: LGPL
