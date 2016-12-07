@@ -17,40 +17,46 @@ if len(sys.argv) < 5:
     print 'You need to specify the batch size.'
     sys.exit(0)
 
-# location of the spectral data
-input_file_name = sys.argv[1]
 
-# controls the size of the autoencoder layers
-# TODO: this is hardcoded; can easily be based on the input file
-input_dim = 1025
-encoding_dim = int(sys.argv[2])
-
-# parameters for the epochs
-num_epochs = int(sys.argv[3])
-epoch_batch_size = int(sys.argv[4])
-
-
-def load_spectrogram_data():
-    # load the data
-    raw_data = cPickle.load(open(input_file_name, 'rb'))
-    raw_data = np.array(raw_data)
-
+def load_spectrogram_data(raw):
     # reshape the data
-    data_shape = raw_data.shape
+    data_shape = raw.shape
     num_frames = data_shape[0] * data_shape[1]
-    raw_data = np.array(raw_data).reshape(
+    raw = np.array(raw).reshape(
         (num_frames, data_shape[2])
     )
 
     # normalize the data
     largest_magnitude = np.amax(raw_data)
-    raw_data = raw_data / largest_magnitude
+    raw = raw / largest_magnitude
 
     # split into train and test data
     cutoff = int(num_frames * 0.8)
-    train = raw_data[:cutoff]
-    test = raw_data[cutoff:]
+    train = raw[:cutoff]
+    test = raw[cutoff:]
     return ((train, False), (test, False))
+
+# location of the spectral data
+input_file_name = sys.argv[1]
+
+# unpickle the file
+raw_data = cPickle.load(open(input_file_name, 'rb'))
+raw_data = np.array(raw_data)
+
+# load the spectrogram data
+(x_train, _), (x_test, _) = load_spectrogram_data(raw_data)
+
+# cast them as floats
+x_train = x_train.astype('float32')
+x_test = x_test.astype('float32')
+
+# controls the size of the autoencoder layers
+input_dim = raw_data.shape[2]
+encoding_dim = int(sys.argv[2])
+
+# parameters for the epochs
+num_epochs = int(sys.argv[3])
+epoch_batch_size = int(sys.argv[4])
 
 # generate a file name for the model file to output
 model_name = np.base_repr(int(9**4 * np.random.rand()), 36)
@@ -90,13 +96,6 @@ decoder = Model(
 autoencoder.compile(
     optimizer='adadelta', loss='mean_squared_error'
 )
-
-# load the spectrogram data
-(x_train, _), (x_test, _) = load_spectrogram_data()
-
-# cast them as floats
-x_train = x_train.astype('float32')
-x_test = x_test.astype('float32')
 
 # train the autoencoder
 autoencoder.fit(
