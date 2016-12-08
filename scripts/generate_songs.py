@@ -36,10 +36,11 @@ def generate_and_save_song():
         song = dp.generate_song(
             notes_per_chord, num_repeats, time_per_note
         )
+        song_timeline = dp.get_timeline_from_hlr(song)
         file_name = '%s/gen-song-%s-%d.wav' % (
             root, letter, next_song_idx
         )
-        dp.save_timeline_to_wav(song, file_name)
+        dp.save_timeline_to_wav(song_timeline, file_name)
         print '\nSaved %s' % file_name
 
 start_time = timer()

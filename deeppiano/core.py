@@ -1,7 +1,7 @@
 """
 Deep Piano
 @author Anthony Liu <igliu@mit.edu>
-@version 0.2.0
+@version 0.3.0
 """
 
 import numpy as np
@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from matplotlib.mlab import specgram
 from scipy.io import wavfile
 from timeline import Hit, Timeline
-from musical.audio import save
+from musical.audio import save, encode
 from musical.theory import Chord, Note, Scale
 import random as rand
 
@@ -21,6 +21,13 @@ def get_timeline_from_hlr(hlr):
         for note in chord.notes:
             timeline.add(t, Hit(note, duration))
     return timeline
+
+
+# given the Timeline of a song, returns that song's .wav data
+def get_wav_from_timeline(timeline):
+    data = 0.25 * timeline.render()
+    data = encode.as_int16(data)
+    return data
 
 
 # given the Timeline of a song, saves that song to a .wav file
@@ -64,12 +71,17 @@ def generate_song(notes_per_chord, num_repeats, note_time=1.0):
         note = melody[i]
         song.append((i*note_time, Chord([note]), note_time))
 
-    return get_timeline_from_hlr(song)
+    return song
 
 
 # given a .wav file name, returns its audio spectrogram
 def get_wav_spectrogram(file_name, frame_size):
     fs, data = wavfile.read(file_name)
+    return get_wav_spectrogram(data, frame_size)
+
+
+# given .wav data, returns its audio spectrogram
+def get_spectrogram_from_data(data, frame_size):
     expectopatronagram = specgram(data.T, NFFT=frame_size)
     return expectopatronagram[0]
 
@@ -88,7 +100,15 @@ def plot_mangogram(mangogram):
 
 # given a .wav file name, returns vectors for the autoencoder
 def get_vectorized_wav(file_name, frame_size):
-    spectrogram = get_wav_spectrogram(file_name, frame_size)
+    fs, data = wavfile.read(file_name)
+    return get_vectors_from_data(data, frame_size)
+
+
+# given a .wav file name, returns vectors for the autoencoder
+def get_vectors_from_data(data, frame_size):
+    spectrogram = get_spectrogram_from_data(
+        data, frame_size
+    )
     mangogram = [
         [np.log(abs(x)) for x in r] for r in spectrogram
     ]

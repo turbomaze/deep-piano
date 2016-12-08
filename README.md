@@ -8,7 +8,9 @@ This project uses generative models and deep auto-encoders to infer the underlyi
 
 * To compute the FFT of the input audio files, this project uses `matplotlib.mlab`.
 
-* This project uses `numpy`.
+* This project uses `numpy` for miscellaneous math.
+
+* This project uses `scipy` for some `.wav` file utilities.
 
 * This project requires `h5py` to save Keras models.
 
