@@ -25,25 +25,36 @@ class Imagination(object):
         self.max_note = 100
 
     # given .wav data, returns its musical HLR
-    def infer_hlr(self, target_wav, rounds):
+    def infer_hlr(self, rounds, target_wav, target_hlr=None):
         z = self.sample_latent()
         song = self.get_hlr_from_latent(z)
         song_timeline = dp.get_timeline_from_hlr(song)
         wav = dp.get_wav_from_timeline(song_timeline)
-        dist = self.get_distance(wav, target_wav)
+        obs_dist = self.get_distance(wav, target_wav)
+        real_dist = self.get_real_distance(song, target_hlr)
 
         for i in range(rounds):
-            print 'Round %d loss: %f' % (i, dist)
+            print 'Round %d' % i
+            print 'observed loss: %f, real loss: %f' % (
+                obs_dist,
+                real_dist
+            )
+            print
 
             # transition initial song
             z_ = self.transition(z, i)
             song_ = self.get_hlr_from_latent(z_)
             song_timeline_ = dp.get_timeline_from_hlr(song_)
             wav_ = dp.get_wav_from_timeline(song_timeline_)
-            dist_ = self.get_distance(wav_, target_wav)
+            obs_dist_ = self.get_distance(wav_, target_wav)
+            real_dist_ = self.get_real_distance(
+                song_,
+                target_hlr
+            )
 
-            if dist > dist_:
-                dist, z, song, wav = dist_, z_, song_, wav_
+            if obs_dist > obs_dist_:
+                obs_dist, real_dist = obs_dist_, real_dist_
+                z, song, wav = z_, song_, wav_
 
         return song
 
@@ -64,6 +75,73 @@ class Imagination(object):
         # return their squared difference sum
         mse = np.sum(np.square(encoding_b - encoding_a))
         return mse
+
+    # given two Timelines, return their 'Levenstein' distance
+    @classmethod
+    def get_real_distance(cls, a, b):
+        if a is None or b is None:
+            return float('inf')
+
+        # construct a dictionary keyed by hit time
+        songs_by_time = {}
+        for hit in a:
+            if hit[0] not in songs_by_time:
+                songs_by_time[hit[0]] = ([], [])
+            songs_by_time[hit[0]][0].append(tuple(hit[1:]))
+        for hit in b:
+            if hit[0] not in songs_by_time:
+                songs_by_time[hit[0]] = ([], [])
+            songs_by_time[hit[0]][1].append(tuple(hit[1:]))
+
+        # sum the differences of each corresponding slot
+        real_dist = 0
+        for slot in songs_by_time:
+            U, V = songs_by_time[slot]
+            real_dist += cls.get_real_universe_dist(U, V)
+
+        # compute the normed real dist; roughly, error per note
+        normed_real_dist = (real_dist/max(len(a), len(b)))**0.5
+        return normed_real_dist
+
+    # given 2 lists of mutually concurrent notes,
+    # computes the distance between all pairs between the lists
+    @classmethod
+    def get_real_universe_dist(cls, U, V):
+        zero_hit = (Chord([Note('c0')]), 0)
+        if len(U) == 0:
+            U = [zero_hit]
+        if len(V) == 0:
+            V = [zero_hit]
+
+        # sum(dist(u,v) for all u,v)
+        total_sum = 0
+        for u in U:
+            for v in V:
+                total_sum += cls.get_real_pairwise_dist(u, v)
+
+        normed_sum = total_sum / (len(U) * len(V))
+        return normed_sum
+
+    # computes the L2-distance b/w two notes by pitch/duration
+    @classmethod
+    def get_real_pairwise_dist(cls, u, v):
+        c_pitch = 4.0
+        c_time = 1.0
+
+        chord_u, chord_v = u[0], v[0]
+        duration_u, duration_v = u[1], v[1]
+        pitch_dist = cls.get_real_chord_dist(chord_u, chord_v)
+        time_dist = (duration_u - duration_v)**2
+        return c_pitch * pitch_dist + c_time * time_dist
+
+    # computes the distance between two chords
+    @classmethod
+    def get_real_chord_dist(cls, a, b):
+        chord_dist = 0
+        for note_a in a.notes:
+            for note_b in b.notes:
+                chord_dist += (note_a.index - note_b.index)**2
+        return chord_dist
 
     # returns a random assignment of the latent variables
     def sample_latent(self):
