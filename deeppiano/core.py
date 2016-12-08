@@ -71,7 +71,7 @@ def generate_song(notes_per_chord, num_repeats, note_time=1.0):
         note = melody[i]
         song.append((i*note_time, Chord([note]), note_time))
 
-    return get_timeline_from_hlr(song)
+    return song
 
 
 # given a .wav file name, returns its audio spectrogram
