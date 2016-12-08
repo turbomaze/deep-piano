@@ -55,7 +55,7 @@ class Imagination(object):
                 obs_dist, real_dist = obs_dist_, real_dist_
                 z, song, wav = z_, song_, wav_
 
-        return song
+        return song, obs_dist, real_dist
 
     # given two .wav datas, returns the MSE of their encodings
     def get_distance(self, wav_a, wav_b):

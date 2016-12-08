@@ -31,7 +31,7 @@ dp.save_timeline_to_wav(
 
 # run inference for a bit
 print 'Beginning inference on target song %s' % session_id
-guess_hlr = imagination.infer_hlr(
+guess_hlr, _, _ = imagination.infer_hlr(
     num_rounds,
     target_wav,
     target_hlr
