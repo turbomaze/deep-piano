@@ -27,7 +27,7 @@ def get_timeline_from_hlr(hlr):
 def get_wav_from_timeline(timeline):
     data = 0.25 * timeline.render()
     data = encode.as_int16(data)
-    return data
+    return np.array(data)
 
 
 # given the Timeline of a song, saves that song to a .wav file
@@ -77,7 +77,7 @@ def generate_song(notes_per_chord, num_repeats, note_time=1.0):
 # given a .wav file name, returns its audio spectrogram
 def get_wav_spectrogram(file_name, frame_size):
     fs, data = wavfile.read(file_name)
-    return get_wav_spectrogram(data, frame_size)
+    return get_spectrogram_from_data(data, frame_size)
 
 
 # given .wav data, returns its audio spectrogram
