@@ -10,7 +10,7 @@ import sys
 if len(sys.argv) < 2:
     print 'You must specify the location of the spectrum.'
 if len(sys.argv) < 3:
-    print 'You need to specify the hidden layer size.'
+    print 'You need to specify the hidden layer sizes.'
 if len(sys.argv) < 4:
     print 'You need to specify the number of epochs.'
 if len(sys.argv) < 5:
@@ -52,7 +52,7 @@ x_test = x_test.astype('float32')
 
 # controls the size of the autoencoder layers
 input_dim = raw_data.shape[2]
-encoding_dim = int(sys.argv[2])
+encoding_dims = [int(x) for x in sys.argv[2].split(',')]
 
 # parameters for the epochs
 num_epochs = int(sys.argv[3])
@@ -60,9 +60,11 @@ epoch_batch_size = int(sys.argv[4])
 
 # generate a file name for the model file to output
 model_name = np.base_repr(int(9**4 * np.random.rand()), 36)
-output_file_name = '../models/%s.%d-%d-%d.%dep-%dba.h5' % (
+output_file_name = '../models/%s.%d-%s-%d.%dep-%dba.h5' % (
     model_name,
-    input_dim, encoding_dim, input_dim,
+    input_dim,
+    '-'.join(str(x) for x in encoding_dims),
+    input_dim,
     num_epochs, epoch_batch_size
 )
 
@@ -70,28 +72,15 @@ output_file_name = '../models/%s.%d-%d-%d.%dep-%dba.h5' % (
 input_frame = Input(shape=(input_dim,))
 
 # "encoded" is the encoded representation of the input
-encoded = Dense(encoding_dim, activation='relu')(input_frame)
+encoded = input_frame
+for dim in encoding_dims:
+    encoded = Dense(dim, activation='relu')(encoded)
 
 # "decoded" is the lossy reconstruction of the input
 decoded = Dense(input_dim, activation='linear')(encoded)
 
 # this model maps an input to its reconstruction
 autoencoder = Model(input=input_frame, output=decoded)
-
-# this model maps an input to its encoded representation
-encoder = Model(input=input_frame, output=encoded)
-
-# create a placeholder for an encoded input
-encoded_input = Input(shape=(encoding_dim,))
-
-# retrieve the last layer of the autoencoder model
-decoder_layer = autoencoder.layers[-1]
-
-# create the decoder model
-decoder = Model(
-    input=encoded_input,
-    output=decoder_layer(encoded_input)
-)
 
 autoencoder.compile(
     optimizer='adadelta', loss='mean_squared_error'
@@ -108,5 +97,5 @@ autoencoder.fit(
 )
 
 # save the model to a file
-print 'Saving to %s...' % output_file_name
+print 'Saving to "%s"...' % output_file_name
 autoencoder.save(output_file_name)

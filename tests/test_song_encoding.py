@@ -2,7 +2,7 @@ from context import deeppiano as dp
 from context import Autoencoder
 import numpy as np
 
-model_file = '../models/8M.1025-128-1025.60ep-100ba.h5'
+model_file = '../models/4AU.1025-128-32-128-1025.100ep-200ba.h5'
 song_file = '../data/songs/gen-song-I-0.wav'
 frame_width = 2048
 
@@ -10,8 +10,7 @@ autoencoder = Autoencoder(model_file)
 
 mangogram = dp.get_vectorized_wav(song_file, frame_width)
 
-encoding = autoencoder.get_encoding(mangogram)
-decoding = autoencoder.get_decoding(encoding)
+decoding = autoencoder.model.predict(mangogram)
 
 # compute difference between mangogram and decoding
 mse = np.sum(
