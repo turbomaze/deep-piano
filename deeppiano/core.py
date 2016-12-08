@@ -37,16 +37,28 @@ def save_timeline_to_wav(timeline, out):
 
 
 # randomly generates a song and returns its timeline
-def generate_song(notes_per_chord, num_repeats, note_time=1.0):
+def generate_song(
+    notes_per_chord,
+    num_repeats,
+    note_time=1.0,
+    prog_intervals=(7, 2, -4j, 5)
+):
     # generate a random major key
     root = Note(rand.choice(Note.NOTES))
     scale_notes = Scale(root, 'major')
 
-    # generate a I-V-vi-IV progression
     octave = 3
-    intervals = (7, 2, -4, 5)
-    progression = Chord.progression(Scale(root, intervals), octave)
-    progression[2] = major_to_minor(progression[2])
+    progression = Chord.progression(
+        Scale(
+            root,
+            [int(p.real + p.imag) for p in prog_intervals]
+        ),
+        octave
+    )
+    for i, z in enumerate(prog_intervals):
+        if z.imag != 0:
+            # TODO: cannot have a repeated chord be minor
+            progression[i] = major_to_minor(progression[i])
 
     # generates a melody for the progression
     low_octave = 4
