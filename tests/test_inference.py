@@ -6,7 +6,7 @@ import numpy as np
 
 model_name = '../models/8M.1025-128-1025.60ep-100ba.h5'
 frame_width = 2048
-num_rounds = 200
+num_rounds = 1000
 target_song_prefix = '../data/test-songs/target-song-'
 guess_song_prefix = '../data/test-songs/guess-song-'
 suffix = '.wav'
@@ -42,4 +42,6 @@ dp.save_timeline_to_wav(
 
 # logs
 end = timer()
-print 'Inference completed in %fs' % (end - start)
+print 'Inference completed for %s in %fs' % (
+    session_id, end - start
+)

@@ -21,6 +21,9 @@ class Imagination(object):
         # melody notes all share the same duration and offset
         self.time_per_note = 0.25
 
+        # highest note to play
+        self.max_note = 100
+
     # given .wav data, returns its musical HLR
     def infer_hlr(self, target_wav, rounds):
         z = self.sample_latent()
@@ -33,7 +36,7 @@ class Imagination(object):
             print 'Round %d loss: %f' % (i, dist)
 
             # transition initial song
-            z_ = self.transition(z)
+            z_ = self.transition(z, i)
             song_ = self.get_hlr_from_latent(z_)
             song_timeline_ = dp.get_timeline_from_hlr(song_)
             wav_ = dp.get_wav_from_timeline(song_timeline_)
@@ -88,12 +91,30 @@ class Imagination(object):
     def sample_note(self, mean, stddev):
         # cap from 0 to 100; approximately octaves 0 to 8
         note = np.random.normal(mean, stddev)
-        return min(max(int(round(note)), 0), 100)
+        return min(max(int(round(note)), 0), self.max_note)
 
     # given latent variables, modifies it according to a prior
-    def transition(self, latent):
-        # TODO: metropolis style updates
-        return self.sample_latent()
+    def transition(self, latent, i):
+        # choose a random latent variable to change
+        idx = i % len(latent)
+        latent_ = latent[:]
+
+        # check to see if we're changing the chord type
+        if idx < 2 * self.num_chords and idx % 2 == 1:
+            latent_[idx] = not latent[idx]
+            return latent_
+
+        # otherwise latent variable is a melody or chord root
+        latent_[idx] = self.sample_note(latent[idx], 3)
+
+        # enforce change
+        if latent[idx] == latent_[idx]:
+            latent_[idx] += 1 if rand.random() < 0.5 else -1
+            latent_[idx] = min(
+                max(latent_[idx], 0), self.max_note
+            )
+
+        return latent_
 
     # given a list of latent variables, returns the song HLR
     def get_hlr_from_latent(self, latent):
