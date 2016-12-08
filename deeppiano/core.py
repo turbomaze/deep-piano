@@ -40,7 +40,7 @@ def save_timeline_to_wav(timeline, out):
 def generate_song(
     notes_per_chord,
     num_repeats,
-    note_time=1.0,
+    note_time=0.25,
     prog_intervals=(7, 2, -4j, 5)
 ):
     # generate a random major key

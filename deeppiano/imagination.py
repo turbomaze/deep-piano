@@ -6,19 +6,27 @@ import random as rand
 
 class Imagination(object):
     # set up the autoencoder and some parameters for the prior
-    def __init__(self, autoencoder, frame_width, num_chords=4):
+    def __init__(
+        self,
+        autoencoder,
+        frame_width,
+        num_chords=4,
+        time_per_note=0.25
+    ):
         self.encoder = autoencoder.get_encoding
         self.frame_width = frame_width
 
-        # prior assumptions about the melody
+        # could easily be inferred in the future
         self.num_chords = num_chords
+
+        # prior assumptions about the melody
         self.notes_per_chord = 4
 
         # the chord progression repeats
         self.num_repeats = 1
 
         # melody notes all share the same duration and offset
-        self.time_per_note = 0.25
+        self.time_per_note = time_per_note
 
         # highest note to play
         self.max_note = 100
