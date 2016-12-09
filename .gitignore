@@ -1,5 +1,6 @@
 */*.pyc
 
 data/*
+!data/experiments
 data/songs/*
 data/test-songs/*

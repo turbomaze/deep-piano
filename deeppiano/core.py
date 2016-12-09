@@ -1,7 +1,7 @@
 """
 Deep Piano
 @author Anthony Liu <igliu@mit.edu>
-@version 1.0.0
+@version 1.1.0
 """
 
 import numpy as np
@@ -104,9 +104,14 @@ def plot_spectrogram(spectrogram):
     plot_mangogram(mangogram)
 
 
-# plot a given a magnitude spectrogram
-def plot_mangogram(mangogram):
+# plot given a magnitude spectrogram
+def plot_mangogram(mangogram, title='Magnitude spectrogram'):
     plt.pcolormesh(mangogram)
+    plt.title(title)
+    plt.xlim([0, 91])
+    plt.xlabel('Frame index')
+    plt.ylim([0, 1025])
+    plt.ylabel('Frequency bin')
     plt.show()
 
 

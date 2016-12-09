@@ -2,8 +2,8 @@ from context import deeppiano as dp
 from context import Autoencoder
 import numpy as np
 
-model_file = '../models/4AU.1025-128-32-128-1025.100ep-200ba.h5'
-song_file = '../data/songs/gen-song-I-0.wav'
+model_file = '../models/deep-models/1B3.1025-256-128-256-1025.200ep-200ba.h5'
+song_file = '../data/songs/gen-song-I-1.wav'
 frame_width = 2048
 
 autoencoder = Autoencoder(model_file)
@@ -17,5 +17,11 @@ mse = np.sum(
     np.square(np.array(decoding) - np.array(mangogram))
 ) / np.prod(mangogram.shape)
 print 'Average MSE b/w input and its reconstruction: %f' % mse
-dp.plot_mangogram(np.transpose(mangogram))
-dp.plot_mangogram(np.transpose(decoding))
+dp.plot_mangogram(
+    np.transpose(mangogram),
+    'True spectrogram; shallow model 1B3'
+)
+dp.plot_mangogram(
+    np.transpose(decoding),
+    'Reconstructed spectrogram; shallow model 1B3'
+)
